@@ -4,27 +4,37 @@ on: workflow_dispatch
 
 jobs:
   release-update:
-    runs-on: windows-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            target: x86_64-pc-windows-msvc
+          - os: windows-latest
+            target: i686-pc-windows-msvc
+          - os: windows-latest
+            target: aarch64-pc-windows-msvc
+
+    runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
 
       - name: Install Rust
-        uses: actions-rs/toolchain@v1
-        with:
-          toolchain: stable
-          profile: minimal
-          override: true
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Add Rust Target
+        run: rustup target add ${{ matrix.target }}
 
       - name: Build
-        run: cargo build --release
+        run: cargo build --release --target ${{ matrix.target }}
 
       - name: Release
         uses: softprops/action-gh-release@v1
         with:
-          name: latest
-          tag_name: latest
+          name: ${{ matrix.target }}
+          tag_name: ${{ matrix.target }}
           files: |
-            target/release/clash-verge-service.exe
-            target/release/install-service.exe
-            target/release/uninstall-service.exe
+            target/${{ matrix.target }}/release/clash-verge-service.exe
+            target/${{ matrix.target }}/release/install-service.exe
+            target/${{ matrix.target }}/release/uninstall-service.exe
