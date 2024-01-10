@@ -3,10 +3,11 @@ mod web;
 
 use self::data::*;
 use self::web::*;
-use std::{ffi::OsString, time::Duration};
 use tokio::runtime::Runtime;
 use warp::Filter;
 
+#[cfg(windows)]
+use std::{ffi::OsString, time::Duration};
 #[cfg(windows)]
 use windows_service::{
     define_windows_service,
@@ -18,8 +19,9 @@ use windows_service::{
     service_dispatcher, Result,
 };
 
-const SERVICE_NAME: &str = "clash_verge_service";
+#[cfg(windows)]
 const SERVICE_TYPE: ServiceType = ServiceType::OWN_PROCESS;
+const SERVICE_NAME: &str = "clash_verge_service";
 const LISTEN_PORT: u16 = 33211;
 
 macro_rules! wrap_response {
@@ -117,7 +119,7 @@ fn stop_service() -> Result<()> {
     Ok(())
 }
 #[cfg(not(windows))]
-fn stop_service() -> Result<()> {
+fn stop_service() -> anyhow::Result<()> {
     // systemctl stop clash_verge_service
     std::process::Command::new("systemctl")
         .arg("stop")
@@ -133,7 +135,7 @@ pub fn main() -> Result<()> {
 }
 
 #[cfg(not(windows))]
-pub fn main() -> Result<(), ()> {
+pub fn main() -> anyhow::Result<()> {
     if let Ok(rt) = Runtime::new() {
         rt.block_on(async {
             let _ = run_service().await;

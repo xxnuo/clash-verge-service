@@ -6,6 +6,6 @@ fn main() -> windows_service::Result<()> {
 }
 
 #[cfg(not(windows))]
-fn main() -> Result<(), ()> {
+fn main() -> anyhow::Result<()> {
     service::main()
 }
