@@ -133,7 +133,7 @@ pub fn main() -> Result<()> {
 }
 
 #[cfg(not(windows))]
-pub fn main() -> Result<()> {
+pub fn main() -> Result<(), ()> {
     if let Ok(rt) = Runtime::new() {
         rt.block_on(async {
             let _ = run_service().await;

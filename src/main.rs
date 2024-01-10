@@ -1,4 +1,3 @@
-#[cfg(windows)]
 mod service;
 
 #[cfg(windows)]
@@ -7,6 +6,6 @@ fn main() -> windows_service::Result<()> {
 }
 
 #[cfg(not(windows))]
-fn main() -> Result<()> {
+fn main() -> Result<(), ()> {
     service::main()
 }
