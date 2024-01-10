@@ -123,7 +123,7 @@ fn stop_service() -> anyhow::Result<()> {
     // systemctl stop clash_verge_service
     std::process::Command::new("systemctl")
         .arg("stop")
-        .arg("clash_verge_service")
+        .arg(SERVICE_NAME)
         .output()
         .expect("failed to execute process");
     Ok(())
