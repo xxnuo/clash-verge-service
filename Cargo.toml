@@ -30,6 +30,9 @@ windows-service = "0.6.0"
 tokio = { version = "1", features = ["full"] }
 serde = { version = "1.0", features = ["derive"] }
 
+[target.'cfg(target_os = "linux")'.dependencies]
+openssl ={ version = "0.10", features = ["vendored"] }
+
 [profile.release]
 panic = "abort"
 codegen-units = 1
