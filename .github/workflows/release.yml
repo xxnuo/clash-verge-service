@@ -38,15 +38,15 @@ jobs:
         run: rustup target add ${{ matrix.target }}
 
       - name: Build
-        if: matrix.target == "windows-latest"
+        if: matrix.os == 'windows-latest'
         run: cargo build --release --target ${{ matrix.target }}
 
       - name: Build
-        if: matrix.target != "windows-latest"
+        if: matrix.os != 'windows-latest'
         run: cargo build --release --target ${{ matrix.target }} --bin clash-verge-service
 
       - name: Release
-        if: matrix.target == "windows-latest"
+        if: matrix.os == "windows-latest"
         uses: softprops/action-gh-release@v1
         with:
           name: ${{ matrix.target }}
@@ -58,7 +58,7 @@ jobs:
             target/${{ matrix.target }}/release/uninstall-service.exe
 
       - name: Release
-        if: matrix.target != "windows-latest"
+        if: matrix.os != "windows-latest"
         uses: softprops/action-gh-release@v1
         with:
           name: ${{ matrix.target }}
