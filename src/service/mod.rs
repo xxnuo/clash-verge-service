@@ -1,5 +1,3 @@
-#![cfg(windows)]
-
 mod data;
 mod web;
 
@@ -8,6 +6,8 @@ use self::web::*;
 use std::{ffi::OsString, time::Duration};
 use tokio::runtime::Runtime;
 use warp::Filter;
+
+#[cfg(windows)]
 use windows_service::{
     define_windows_service,
     service::{
@@ -42,6 +42,7 @@ macro_rules! wrap_response {
 /// The Service
 pub async fn run_service() -> anyhow::Result<()> {
     // 开启服务 设置服务状态
+    #[cfg(windows)]
     let status_handle = service_control_handler::register(
         SERVICE_NAME,
         move |event| -> ServiceControlHandlerResult {
@@ -52,7 +53,7 @@ pub async fn run_service() -> anyhow::Result<()> {
             }
         },
     )?;
-
+    #[cfg(windows)]
     status_handle.set_service_status(ServiceStatus {
         service_type: SERVICE_TYPE,
         current_state: ServiceState::Running,
@@ -98,6 +99,7 @@ pub async fn run_service() -> anyhow::Result<()> {
 }
 
 // 停止服务
+#[cfg(windows)]
 fn stop_service() -> Result<()> {
     let status_handle =
         service_control_handler::register(SERVICE_NAME, |_| ServiceControlHandlerResult::NoError)?;
@@ -114,15 +116,35 @@ fn stop_service() -> Result<()> {
 
     Ok(())
 }
-
+#[cfg(not(windows))]
+fn stop_service() -> Result<()> {
+    // systemctl stop clash_verge_service
+    std::process::Command::new("systemctl")
+        .arg("stop")
+        .arg("clash_verge_service")
+        .output()
+        .expect("failed to execute process");
+    Ok(())
+}
 /// Service Main function
-
+#[cfg(windows)]
 pub fn main() -> Result<()> {
     service_dispatcher::start(SERVICE_NAME, ffi_service_main)
 }
 
+#[cfg(not(windows))]
+pub fn main() -> Result<()> {
+    if let Ok(rt) = Runtime::new() {
+        rt.block_on(async {
+            let _ = run_service().await;
+        });
+    }
+}
+
+#[cfg(windows)]
 define_windows_service!(ffi_service_main, my_service_main);
 
+#[cfg(windows)]
 pub fn my_service_main(_arguments: Vec<OsString>) {
     if let Ok(rt) = Runtime::new() {
         rt.block_on(async {
