@@ -135,7 +135,7 @@ pub fn main() -> Result<()> {
 }
 
 #[cfg(not(windows))]
-pub fn main() -> anyhow::Result<()> {
+pub fn main() {
     if let Ok(rt) = Runtime::new() {
         rt.block_on(async {
             let _ = run_service().await;
