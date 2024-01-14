@@ -11,6 +11,8 @@ pub struct StartBody {
     pub config_file: String,
 
     pub log_file: String,
+
+    pub ext_args: Option<String>,
 }
 
 #[derive(Deserialize, Serialize)]

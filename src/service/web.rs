@@ -49,11 +49,17 @@ pub fn start_clash(body: StartBody) -> Result<()> {
 
     let config_file = body.config_file.as_str();
 
-    let args = match core_type.as_str() {
+    let ext_args = body.ext_args.unwrap_or("".into());
+
+    let mut args = match core_type.as_str() {
         "clash-meta" => vec!["-m", "-d", config_dir, "-f", config_file],
         "clash-meta-alpha" => vec!["-m", "-d", config_dir, "-f", config_file],
         _ => vec!["-d", config_dir, "-f", config_file],
     };
+
+    if !ext_args.is_empty() {
+        args.extend(ext_args.split_whitespace());
+    }
 
     let log = File::create(body.log_file).context("failed to open log")?;
     let cmd = Command::new(body.bin_path).args(args).stdout(log).spawn()?;
